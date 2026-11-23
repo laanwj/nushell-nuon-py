@@ -160,8 +160,12 @@ way out — with `examples/double.py` as the minimal script:
 
 ```nushell
 source examples/py-call.nu
-[1 2 3] | py-call examples/double.py {factor: 2}   # => [2, 4, 6]
+[1 2 3] | py-call examples/double.py 2   # => [2, 4, 6]
 ```
+
+The request record is `{input: …, args: […]}` — the pipeline value plus
+any number of typed positional arguments (a script wanting named
+parameters takes a record as one of them).
 
 Unlike the msgpack transport, nushell-typed values cross natively:
 durations, filesizes, datetimes, binary, ranges and cell paths arrive as

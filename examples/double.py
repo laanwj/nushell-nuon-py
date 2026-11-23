@@ -1,4 +1,4 @@
-"""Multiply every pipeline value by ``params.factor``.
+"""Multiply every pipeline value by the first positional argument.
 
 The runnable companion to ``py-call.nu``; the minimal interface it
 implements is in that file's help text.
@@ -17,7 +17,7 @@ except ImportError:  # running the example from the repo without installing
 
 def main() -> int:
     request = nushell_nuon.loads(sys.stdin.read())
-    factor = request["params"]["factor"]
+    factor = request["args"][0]
     print(nushell_nuon.dumps([value * factor for value in request["input"]]))
     return 0
 
