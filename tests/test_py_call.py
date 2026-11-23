@@ -157,3 +157,56 @@ def test_python_override():
     )
     assert rc == 0
     assert nushell_nuon.loads(out) == [10]
+
+
+# examples/tour.py: the full type surface, both directions
+
+
+TOUR = os.path.join(EXAMPLES, "tour.py")
+
+
+def _tour(pipeline: str) -> dict:
+    rc, out, _ = py_call(f"{pipeline} | py-call {TOUR!r} | to nuon --raw")
+    assert rc == 0
+    return nushell_nuon.loads(out)
+
+
+def test_tour_duration_and_sample_types():
+    result = _tour("2hr")
+    assert result["saw"] == {"kind": "duration", "ns": 7_200_000_000_000}
+    sample = result["sample"]
+    assert sample["for"] == nushell_nuon.Duration(1_500_000_000)
+    assert sample["disk"] == nushell_nuon.Filesize(2 * 1024**3)
+    assert sample["every"] == nushell_nuon.Range(1, 2, 9)
+    assert sample["blob"] == b"\xde\xad\xbe\xef"
+
+
+def test_tour_datetime_nanosecond_round_trip():
+    result = _tour("2000-01-01")
+    from datetime import timezone as tz
+
+    assert result["saw"]["kind"] == "datetime"
+    assert result["sample"]["at"] == nushell_nuon.Datetime(
+        2026, 1, 1, 12, 0, 0, 0, tz.utc, nanosecond=500
+    )
+
+
+def test_tour_record_columns_and_cell_path():
+    result = _tour("{name: Alice, tags: [a b]}")
+    assert result["saw"] == {"kind": "record", "columns": ["name", "tags"]}
+    assert result["sample"]["where"] == nushell_nuon.CellPath(
+        [nushell_nuon.PathMember("user"),
+         nushell_nuon.PathMember("name", optional=True)]
+    )
+
+
+def test_tour_nested_list_of_records():
+    result = _tour("[{a: 1}, {b: 2sec}]")
+    assert result["saw"] == {
+        "kind": "list", "length": 2, "elements": ["record", "record"]
+    }
+
+
+def test_tour_bool_before_int():
+    result = _tour("[true, 1]")
+    assert result["saw"]["elements"] == ["bool", "int"]

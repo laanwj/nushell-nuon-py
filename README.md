@@ -166,6 +166,8 @@ source examples/py-call.nu
 Unlike the msgpack transport, nushell-typed values cross natively:
 durations, filesizes, datetimes, binary, ranges and cell paths arrive as
 `Duration`, `Filesize`, `Datetime`, `bytes`, `Range` and `CellPath`.
+`examples/tour.py` exercises that surface in both directions: it
+reports what type it received and sends one value of each kind back.
 
 ## Development
 
