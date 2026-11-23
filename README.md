@@ -144,6 +144,21 @@ differences, in both directions:
 - Nesting is capped at 256 levels (a resource limit the spec sanctions;
   nushell's parser has no cap and dies on its native stack instead).
 
+## Example: calling Python from nushell
+
+`examples/py-call.nu` is a copy of the `py-call` autoload wrapper using
+this codec as the transport — `to nuon` on the way in, `from nuon` on the
+way out — with `examples/double.py` as the minimal script:
+
+```nushell
+source examples/py-call.nu
+[1 2 3] | py-call examples/double.py {factor: 2}   # => [2, 4, 6]
+```
+
+Unlike the msgpack transport, nushell-typed values cross natively:
+durations, filesizes, datetimes, binary, ranges and cell paths arrive as
+`Duration`, `Filesize`, `Datetime`, `bytes`, `Range` and `CellPath`.
+
 ## Development
 
     python -m pytest          # unit tests, fast, no nushell needed
