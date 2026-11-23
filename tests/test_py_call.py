@@ -10,7 +10,7 @@ import tempfile
 
 import pytest
 
-import nuon
+import nushell_nuon
 
 EXAMPLES = os.path.join(os.path.dirname(__file__), "..", "examples")
 WRAPPER = os.path.join(EXAMPLES, "py-call.nu")
@@ -54,9 +54,9 @@ def echo_params_script() -> str:
         f.write(
             "import sys\n"
             f"sys.path.insert(0, {REPO!r})\n"
-            "import nuon\n"
-            "request = nuon.loads(sys.stdin.read())\n"
-            "print(nuon.dumps(request['params']))\n"
+            "import nushell_nuon\n"
+            "request = nushell_nuon.loads(sys.stdin.read())\n"
+            "print(nushell_nuon.dumps(request['params']))\n"
         )
     return path
 
@@ -64,26 +64,26 @@ def echo_params_script() -> str:
 def test_numbers():
     rc, out, _ = py_call(f"[1 2 3] | py-call {DOUBLE!r} {{factor: 2}} | to nuon --raw")
     assert rc == 0
-    assert nuon.loads(out) == [2, 4, 6]
+    assert nushell_nuon.loads(out) == [2, 4, 6]
 
 
 def test_floats():
     rc, out, _ = py_call(f"[0.5 1.5] | py-call {DOUBLE!r} {{factor: 3}} | to nuon --raw")
     assert rc == 0
-    assert nuon.loads(out) == [1.5, 4.5]
+    assert nushell_nuon.loads(out) == [1.5, 4.5]
 
 
 def test_durations_cross_natively():
     rc, out, _ = py_call(f"[2hr 3min] | py-call {DOUBLE!r} {{factor: 2}} | to nuon --raw")
     assert rc == 0
-    assert nuon.loads(out) == [
-        nuon.Duration(4 * 3600 * 10**9), nuon.Duration(6 * 60 * 10**9)
+    assert nushell_nuon.loads(out) == [
+        nushell_nuon.Duration(4 * 3600 * 10**9), nushell_nuon.Duration(6 * 60 * 10**9)
     ]
 
 
 def test_typed_params_cross_natively():
     # a datetime, duration, filesize and range as parameters: they must
-    # arrive in Python as their nuon-py types and survive the trip back
+    # arrive in Python as their nushell_nuon types and survive the trip back
     params = (
         "{factor: 2, when: 2020-05-05T12:00:00+02:00, "
         "span: 5sec, size: 2kib, window: 1..5}"
@@ -92,7 +92,7 @@ def test_typed_params_cross_natively():
     assert rc == 0
     from datetime import timedelta, timezone
 
-    import nuon as n
+    import nushell_nuon as n
 
     assert n.loads(out) == {
         "factor": 2,
@@ -110,13 +110,13 @@ def test_multiline_string_in_params():
         f'["a\\nb"] | py-call {DOUBLE!r} {{factor: 1}} | to nuon --raw'
     )
     assert rc == 0
-    assert nuon.loads(out) == ["a\nb"]
+    assert nushell_nuon.loads(out) == ["a\nb"]
 
 
 def test_binary_input():
     rc, out, _ = py_call(f"[0x[be ef]] | py-call {DOUBLE!r} {{factor: 1}} | to nuon --raw")
     assert rc == 0
-    assert nuon.loads(out) == [b"\xbe\xef"]
+    assert nushell_nuon.loads(out) == [b"\xbe\xef"]
 
 
 def test_missing_params_fails_loudly():
@@ -143,8 +143,8 @@ def test_explicit_null_return():
         f.write(
             "import sys\n"
             f"sys.path.insert(0, {REPO!r})\n"
-            "import nuon\n"
-            "print(nuon.dumps(None))\n"
+            "import nushell_nuon\n"
+            "print(nushell_nuon.dumps(None))\n"
         )
     rc, out, _ = py_call(f"1 | py-call {script!r} | describe")
     assert rc == 0
@@ -156,4 +156,4 @@ def test_python_override():
         f"$env.PY_CALL_PYTHON = 'python3'; [2] | py-call {DOUBLE!r} {{factor: 5}} | to nuon --raw"
     )
     assert rc == 0
-    assert nuon.loads(out) == [10]
+    assert nushell_nuon.loads(out) == [10]

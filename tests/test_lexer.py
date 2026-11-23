@@ -1,5 +1,5 @@
-from nuon._errors import NuonDecodeError
-from nuon._lexer import (
+from nushell_nuon._errors import NuonDecodeError
+from nushell_nuon._lexer import (
     ASSIGN,
     COMMENT,
     EOL,

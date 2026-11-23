@@ -3,8 +3,8 @@ implementation (``from nuon`` / ``to nuon``).
 
 The interface mirrors the standard ``json`` module::
 
-    nuon.dumps(value) -> str      nuon.dump(value, fp)
-    nuon.loads(text) -> value     nuon.load(fp)
+    nushell_nuon.dumps(value) -> str      nushell_nuon.dump(value, fp)
+    nushell_nuon.loads(text) -> value     nushell_nuon.load(fp)
 
 See the README for the value mapping and the behavioral notes.
 """

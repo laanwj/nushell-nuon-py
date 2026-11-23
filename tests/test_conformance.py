@@ -22,8 +22,8 @@ from datetime import timedelta, timezone
 
 import pytest
 
-import nuon
-from nuon import Datetime, Duration, Filesize, Range, loads
+import nushell_nuon
+from nushell_nuon import Datetime, Duration, Filesize, Range, loads
 
 # ------------------------------------------------------------------ plumbing
 
@@ -68,7 +68,7 @@ def nu_pipeline(text: str, pipeline: str) -> tuple[str, int]:
 def py_loads(text: str) -> tuple[bool, object]:
     try:
         return True, loads(text)
-    except nuon.NuonDecodeError:
+    except nushell_nuon.NuonDecodeError:
         return False, None
 
 
@@ -277,7 +277,7 @@ def test_reader_matches_nushell(text):
     assert py_ok == nu_ok, f"classification differs: {text!r}"
     if not nu_ok:
         return
-    canonical = nuon.dumps(value, raw=True)
+    canonical = nushell_nuon.dumps(value, raw=True)
     assert canonical == nu_out, f"value differs: {text!r}"
 
 
@@ -326,14 +326,14 @@ def test_writer_is_byte_identical(text, flags, kwargs):
     nu_out, nu_rc = nu_pipeline(text, f"from nuon | to nuon {flags}")
     assert nu_rc == 0, f"nushell rejected the corpus text: {text!r}"
     value = loads(text)
-    assert nuon.dumps(value, **kwargs) == nu_out, f"{text!r} {flags}"
+    assert nushell_nuon.dumps(value, **kwargs) == nu_out, f"{text!r} {flags}"
 
 
 def test_raw_with_no_commas_is_rejected_by_both():
     _, nu_rc = nu_pipeline("[1]", "from nuon | to nuon --raw --no-commas")
     assert nu_rc != 0
     with pytest.raises(ValueError):
-        nuon.dumps([1], raw=True, commas=False)
+        nushell_nuon.dumps([1], raw=True, commas=False)
 
 
 # --------------------------------------------------------------------- fuzz
@@ -383,7 +383,7 @@ def _random_value(rng: random.Random, depth: int = 0) -> object:
             rng.randint(0, 999999), tz, nanosecond=rng.randint(0, 999),
         )
     if kind == 9:
-        from nuon import CellPath, PathMember
+        from nushell_nuon import CellPath, PathMember
 
         members = []
         for _ in range(rng.randint(0, 4)):
@@ -447,12 +447,12 @@ def test_value_round_trip_fuzz():
     rng = random.Random(20260923)
     for i in range(60):
         value = _random_value(rng)
-        text = nuon.dumps(value)
+        text = nushell_nuon.dumps(value)
         py_back = loads(text)
         assert _values_equal(py_back, value), f"case {i}: {text!r}"
         nu_out, nu_rc = nu_pipeline(text, "from nuon | to nuon --raw")
         assert nu_rc == 0, f"nushell rejected our output: {text!r}"
-        assert nu_out == nuon.dumps(loads(text), raw=True), (
+        assert nu_out == nushell_nuon.dumps(loads(text), raw=True), (
             f"case {i}: canonical forms differ: {text!r}"
         )
 
@@ -500,9 +500,9 @@ def test_display_width_fuzz():
             continue  # multi-line cells are covered by the corpus
         rows = [{"a": cell, "b": 1}, {"a": "abcde", "b": 2}]
         nu_out, nu_rc = nu_pipeline(
-            nuon.dumps(rows), "from nuon | to nuon --pretty"
+            nushell_nuon.dumps(rows), "from nuon | to nuon --pretty"
         )
         assert nu_rc == 0
-        assert nuon.dumps(loads(nuon.dumps(rows)), pretty=True) == nu_out, (
+        assert nushell_nuon.dumps(loads(nushell_nuon.dumps(rows)), pretty=True) == nu_out, (
             f"width differs for cell {cell!r}"
         )

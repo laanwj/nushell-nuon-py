@@ -5,12 +5,11 @@
 @example "Multiply pipeline values using double.py" "[1 2 3] | py-call ./double.py {factor: 2}"
 @example "A minimal double.py implementing the interface" r#'
 import sys
-import nuon
+from nushell_nuon import dumps, loads
 
-request = nuon.loads(sys.stdin.read())
+request = loads(sys.stdin.read())
 factor = request["params"]["factor"]
-result = [value * factor for value in request["input"]]
-print(nuon.dumps(result))
+print(dumps([value * factor for value in request["input"]]))
 '#
 def "py-call" [
     script: path  # Python script to run

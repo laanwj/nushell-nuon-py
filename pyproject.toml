@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nuon"
+name = "nushell-nuon"
 version = "0.1.0"
 description = "NUON (Nushell Object Notation) codec matching nushell's Rust implementation"
 readme = "README.md"
@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = "MIT"
 
 [tool.setuptools]
-packages = ["nuon"]
+packages = ["nushell_nuon"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

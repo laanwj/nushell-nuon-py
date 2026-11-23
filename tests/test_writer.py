@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from nuon import (
+from nushell_nuon import (
     CellPath,
     Datetime,
     Duration,
@@ -364,7 +364,7 @@ class TestRoundTrips:
         ],
     )
     def test_round_trip(self, value):
-        from nuon import loads
+        from nushell_nuon import loads
 
         text = dumps(value)
         assert loads(text) == value, text

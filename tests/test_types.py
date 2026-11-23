@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from nuon import CellPath, Datetime, Duration, Filesize, PathMember, Range
+from nushell_nuon import CellPath, Datetime, Duration, Filesize, PathMember, Range
 
 
 class TestFilesize:

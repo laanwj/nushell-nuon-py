@@ -3,7 +3,7 @@ from datetime import timedelta, timezone
 
 import pytest
 
-from nuon import (
+from nushell_nuon import (
     CellPath,
     Datetime,
     Duration,

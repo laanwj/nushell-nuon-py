@@ -1,4 +1,4 @@
-# nuon — NUON for Python
+# nushell-nuon-py — NUON for Python
 
 A pure-Python, dependency-free codec for [NUON][nuon-book], the data
 notation built into [nushell][nushell]. The interface mirrors the standard
@@ -9,37 +9,42 @@ It is developed against **nushell 0.117.1** and tracks the *implementation*
 where it has moved on from the [formal specification][spec] in the nushell
 tree (see [Divergences](#divergences-from-the-specification) below).
 
+The PyPI name is `nushell-nuon` and it imports as `nushell_nuon`: the bare
+`nuon` name belongs to [nuon.co][nuon-co]'s SDK, which also installs a
+top-level `nuon` module.
+
 [nuon-book]: https://www.nushell.sh/book/quick_tour.html#nuon
 [nushell]: https://www.nushell.sh
+[nuon-co]: https://pypi.org/project/nuon/
 [spec]: https://github.com/nushell/nushell/blob/main/crates/nuon/spec/nuon_formal_specification.md
 
 ## Install
 
 Python 3.10+; no dependencies.
 
-    pip install .
+    pip install nushell-nuon   # or: pip install . from a checkout
 
 ## Usage
 
 ```python
->>> import nuon
->>> nuon.dumps([1, 2, 3])
+>>> from nushell_nuon import dumps, loads
+>>> dumps([1, 2, 3])
 '[1, 2, 3]'
->>> nuon.dumps({"name": "Alice", "age": 30}, pretty=True)
+>>> dumps({"name": "Alice", "age": 30}, pretty=True)
 '{\n  name: Alice,\n  age: 30\n}'
->>> nuon.loads("[[name age]; [Alice 30], [Bob 25]]")
+>>> loads("[[name age]; [Alice 30], [Bob 25]]")
 [{'name': 'Alice', 'age': 30}, {'name': 'Bob', 'age': 25}]
->>> nuon.dumps(nuon.loads("1.5min"))
+>>> dumps(loads("1.5min"))
 '90000000000ns'
 ```
 
 ### API
 
-`nuon.loads(s)` / `nuon.load(fp)`
+`loads(s)` / `load(fp)`
 :   Deserialize nuon text (a `str`, or UTF-8 `bytes`/`bytearray`) from a
     string or a readable file-like object.
 
-`nuon.dumps(obj, *, indent=None, tabs=None, pretty=False, raw=False, raw_strings=False, list_of_records=False, commas=True)` / `nuon.dump(obj, fp, **kw)`
+`dumps(obj, *, indent=None, tabs=None, pretty=False, raw=False, raw_strings=False, list_of_records=False, commas=True)` / `dump(obj, fp, **kw)`
 :   Serialize to nuon text. The keyword flags mirror `to nuon`'s flags
     exactly, including their precedence:
 
@@ -68,11 +73,11 @@ Python 3.10+; no dependencies.
 | `list` | `list` |
 | `record` | `dict` — insertion order is part of the value; duplicate keys are an error |
 | `binary` | `bytes` (dumps also accepts `bytearray`) |
-| `duration` | `nuon.Duration` — a `timedelta` subclass carrying the sub-microsecond remainder in `.nanosecond`, constructed from the nanosecond count; `.total_ns` gives it back exactly |
-| `filesize` | `nuon.Filesize` — an `int` subclass counting bytes |
-| `datetime` | `nuon.Datetime` — a `datetime` subclass with `.nanosecond` (0-999) and `.leap_second` (the `:60` spelling, which `datetime` cannot hold) |
-| `cell-path` | `nuon.CellPath` — of `nuon.PathMember(value, optional, insensitive)` |
-| `range` | `nuon.Range(start, step, end, end_inclusive)` — `end=None` is unbounded |
+| `duration` | `nushell_nuon.Duration` — a `timedelta` subclass carrying the sub-microsecond remainder in `.nanosecond`, constructed from the nanosecond count; `.total_ns` gives it back exactly |
+| `filesize` | `nushell_nuon.Filesize` — an `int` subclass counting bytes |
+| `datetime` | `nushell_nuon.Datetime` — a `datetime` subclass with `.nanosecond` (0-999) and `.leap_second` (the `:60` spelling, which `datetime` cannot hold) |
+| `cell-path` | `nushell_nuon.CellPath` — of `nushell_nuon.PathMember(value, optional, insensitive)` |
+| `range` | `nushell_nuon.Range(start, step, end, end_inclusive)` — `end=None` is unbounded |
 
 `dumps` also accepts plain `timedelta` values (microsecond precision at
 most). Plain `datetime` values must be timezone-aware: a naive datetime
@@ -92,7 +97,7 @@ same order is written the way `to nuon` writes it — as a table with aligned
 columns:
 
 ```python
->>> print(nuon.dumps(
+>>> print(dumps(
 ...     [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}], pretty=True))
 [
   [name,  age];
@@ -114,7 +119,7 @@ input:
   closing quote, an over-long integer, an invalid radix literal (`0o8`),
   an impossible date (`2023-02-29`), an overflowed duration, a duplicate
   record key or table column, a semicolon inside a list — all raise
-  `nuon.NuonDecodeError` with the line, column and a source excerpt.
+  `NuonDecodeError` with the line, column and a source excerpt.
 - `dumps` raises `NuonEncodeError` (with the path of the offending value,
   like `$.a[1].b`) or `TypeError` for anything it cannot represent exactly:
   ints outside 64 bits, non-string record keys, unknown types.
@@ -165,7 +170,7 @@ durations, filesizes, datetimes, binary, ranges and cell paths arrive as
 ## Development
 
     python -m pytest          # unit tests, fast, no nushell needed
-    mypy nuon                 # strict, clean
+    mypy nushell_nuon         # strict, clean
 
 The differential conformance suite (`tests/test_conformance.py`) compares
 every behavior against a real nushell binary and skips itself when none is
