@@ -90,8 +90,15 @@ class TestScalars:
             "2000-01-01T12:34:56.123+05:30"
         )
 
-    def test_naive_datetime_is_utc(self):
-        assert dumps(datetime(2000, 1, 1)) == "2000-01-01T00:00:00+00:00"
+    def test_naive_datetime_is_rejected(self):
+        # a naive datetime asserts nothing about its offset; writing it as
+        # UTC would invent one, so it is rejected loudly
+        with pytest.raises(NuonEncodeError, match="naive datetime"):
+            dumps(datetime(2000, 1, 1))
+        with pytest.raises(NuonEncodeError, match="naive datetime"):
+            dumps(Datetime(2000, 1, 1))  # type: ignore[call-arg]
+        with pytest.raises(NuonEncodeError, match="tzinfo"):
+            dumps({"when": datetime(2000, 1, 1)})
 
     def test_non_minute_offset_is_loud(self):
         from datetime import datetime as dt

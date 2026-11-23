@@ -74,9 +74,12 @@ Python 3.10+; no dependencies.
 | `cell-path` | `nuon.CellPath` — of `nuon.PathMember(value, optional, insensitive)` |
 | `range` | `nuon.Range(start, step, end, end_inclusive)` — `end=None` is unbounded |
 
-`dumps` also accepts plain `timedelta` (microsecond precision) and plain
-`datetime` values: a naive `datetime` is written as UTC, which is what
-nushell's reader assumes for offset-less datetimes.
+`dumps` also accepts plain `timedelta` values (microsecond precision at
+most). Plain `datetime` values must be timezone-aware: a naive datetime
+asserts nothing about its offset, so writing it as UTC would invent one —
+attach a `tzinfo` (`timezone.utc`, `zoneinfo.ZoneInfo`) first. The
+reverse direction is unaffected: offset-less nuon *text* reads as UTC,
+per nushell.
 
 Arithmetic on `Duration`/`Datetime` returns the plain base type and drops
 the nanosecond/leap-second extras — that is inherited `datetime` behavior,

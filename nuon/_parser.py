@@ -438,7 +438,7 @@ def _recognize_datetime(
     for candidate in (
         text,
         text + "T00:00:00+00:00",  # date only
-        text + "+00:00",  # naive time: nushell assumes UTC
+        text + "+00:00",  # offset-less time text: nushell assumes UTC
     ):
         parts = _parse_rfc3339_parts(candidate)
         if parts is None:

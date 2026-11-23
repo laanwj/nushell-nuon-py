@@ -168,7 +168,13 @@ class _Writer:
     def _datetime(self, dt: datetime, path: str) -> str:
         offset = dt.utcoffset()
         if offset is None:
-            offset = timedelta(0)  # a naive datetime is written as UTC
+            # a naive datetime carries no offset information: writing it as
+            # UTC would assert something the value never claimed
+            raise self._fail(
+                "a naive datetime has no UTC offset; set tzinfo "
+                "(timezone.utc, ZoneInfo, ...) before serializing",
+                path,
+            )
         total = int(offset.total_seconds())
         if total % 60 or abs(total) >= 24 * 3600:
             raise self._fail(
